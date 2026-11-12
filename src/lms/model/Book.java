@@ -17,5 +17,6 @@ public class Book extends LibraryItem {
             throw new IllegalArgumentException("Author cannot be blank");
         }
         this.author = author;
+        System.out.println("123");
     }
 }
