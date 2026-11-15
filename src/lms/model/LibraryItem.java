@@ -1,12 +1,13 @@
 package lms.model;
 
-public abstract class LibraryItem {
+
+public abstract class LibraryItem implements Loanable {
     private String id;
     private String title;
     private boolean isBorrowed;
 
     public LibraryItem(String id, String title) {
-        setId(id);
+        this.id = id;
         setTitle(title);
         this.isBorrowed = false;
     }
@@ -19,38 +20,46 @@ public abstract class LibraryItem {
         return title;
     }
 
-    public boolean isBorrowed() {
-        return isBorrowed;
-    }
-
-    public void setId(String id) {
-        if (id == null || id.trim().isEmpty()) {
-            throw new IllegalArgumentException("Id cannot be blank");
-        }
-        this.id = id;
-    }
-
     public void setTitle(String title) {
         if (title == null || title.trim().isEmpty()) {
-            throw new IllegalArgumentException("Title cannot be blank");
+            throw new IllegalArgumentException("Title cannot be empty");
         }
         this.title = title;
     }
 
-    public void borrowItem() {
-        this.isBorrowed = true;
+    public boolean isBorrowed() {
+        return isBorrowed;
     }
 
-    public void returnItem() {
-        this.isBorrowed = false;
-    }
-
-    public double calculateLateFee(int daysLate) {
-        return daysLate * 10.0;
+    public void setBorrowed(boolean borrowed) {
+        isBorrowed = borrowed;
     }
 
     @Override
+    public void loan(Member member) {
+        if (isBorrowed) {
+            System.out.println(title + " is already on loan.");
+            return;
+        }
+        if (member.getBorrowedCount() >= member.getMaxBorrowLimit()) {
+            System.out.println(member.getName() + " has reached the borrow limit.");
+            return;
+        }
+        isBorrowed = true;
+        member.incrementBorrowedCount();
+        System.out.println(title + " loaned to " + member.getName());
+    }
+
+    @Override
+    public void returnItem() {
+        isBorrowed = false;
+        System.out.println(title + " returned");
+    }
+
+    public abstract double calculateLateFee(int daysLate);
+
+    @Override
     public String toString() {
-        return getClass().getSimpleName() + "(id='" + id + "', title='" + title + "', borrowed=" + isBorrowed + ")";
+        return getClass().getSimpleName() + "{id='" + id + "', title='" + title + "', borrowed=" + isBorrowed + "}";
     }
 }
